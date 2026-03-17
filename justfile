@@ -10,9 +10,9 @@ init:
     SECRET_KEY_BASE=$(openssl rand -base64 48)
     TOTP_VAULT_KEY=$(openssl rand -base64 32)
     POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
-    perl -i -pe "s/^SECRET_KEY_BASE=.*/SECRET_KEY_BASE=${SECRET_KEY_BASE}/" .kamal/secrets
-    perl -i -pe "s/^TOTP_VAULT_KEY=.*/TOTP_VAULT_KEY=${TOTP_VAULT_KEY}/" .kamal/secrets
-    perl -i -pe "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=${POSTGRES_PASSWORD}/" .kamal/secrets
+    sed -i '' "s|^SECRET_KEY_BASE=.*|SECRET_KEY_BASE=${SECRET_KEY_BASE}|" .kamal/secrets
+    sed -i '' "s|^TOTP_VAULT_KEY=.*|TOTP_VAULT_KEY=${TOTP_VAULT_KEY}|" .kamal/secrets
+    sed -i '' "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${POSTGRES_PASSWORD}|" .kamal/secrets
     echo "Created .kamal/secrets with generated cryptographic values."
     echo ""
     echo "Now edit .kamal/secrets to set:"

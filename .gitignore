@@ -2,3 +2,4 @@
 .kamal/secrets.*
 !.kamal/secrets.example
 .env
+.idea/
