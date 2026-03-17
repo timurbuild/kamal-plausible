@@ -1,21 +1,17 @@
 service: plausible
-# Yes — Kamal's workflow is build → push → deploy, so it needs a registry you control.
-# The Dockerfile is just `FROM ghcr.io/plausible/community-edition:v3.2.0`,
-# so this is effectively a re-tag of the official image pushed to your registry.
-# Works with Docker Hub, GitHub Container Registry (ghcr.io), or any private registry.
-image: YOUR_DOCKER_USERNAME/plausible-ce
+image: <%= ENV['REGISTRY_USERNAME'] %>/plausible-ce
 
 servers:
   web:
     hosts:
-      - YOUR_SERVER_IP
+      - <%= ENV['SERVER_IP'] %>
     options:
       ulimit: "nofile=65535:65535"
 
 cmd: sh -c "/entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
 
 proxy:
-  host: plausible.example.com
+  host: <%= ENV['PLAUSIBLE_HOST'] %>
   app_port: 8000
   ssl: true
   healthcheck:
@@ -23,12 +19,12 @@ proxy:
     interval: 3
     timeout: 5
   # forward_headers defaults to false with ssl: true — kamal-proxy
-  # sets X-Forwarded-For from the real client IP. Only enable if you
-  # have a trusted CDN/load balancer in front.
+  # sets X-Forwarded-For from the real client IP. Only set to true
+  # if you have a trusted CDN/load balancer in front.
   # forward_headers: true
 
 registry:
-  username: YOUR_DOCKER_USERNAME
+  username: <%= ENV['REGISTRY_USERNAME'] %>
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -38,32 +34,36 @@ builder:
 
 env:
   clear:
-    BASE_URL: https://plausible.example.com
-    # First account: visit /register after deploy — Plausible allows one signup when
-    # no users exist, even with invite_only. After that, only admin can invite users.
+    BASE_URL: https://<%= ENV['PLAUSIBLE_HOST'] %>
     DISABLE_REGISTRATION: invite_only
-    # No auth on this URL is fine — ClickHouse has no ports published to the host,
-    # it's only reachable via Docker's internal kamal network from the Plausible container.
     CLICKHOUSE_DATABASE_URL: http://plausible-events-db:8123/plausible_events_db
     TMPDIR: /var/lib/plausible/tmp
-    # Uncomment and configure for email (needed for invitations / password resets):
-    # MAILER_EMAIL: plausible@example.com
-    # MAILER_NAME: Plausible Analytics
-    # SMTP_HOST_ADDR: smtp.example.com
-    # SMTP_HOST_PORT: "587"
-    # SMTP_HOST_SSL_ENABLED: "true"
+<% if ENV['SMTP_HOST_ADDR'] %>
+    SMTP_HOST_ADDR: <%= ENV['SMTP_HOST_ADDR'] %>
+    SMTP_HOST_PORT: "<%= ENV.fetch('SMTP_HOST_PORT', '587') %>"
+    SMTP_HOST_SSL_ENABLED: "<%= ENV.fetch('SMTP_HOST_SSL_ENABLED', 'true') %>"
+<% end %>
+<% if ENV['MAILER_EMAIL'] %>
+    MAILER_EMAIL: <%= ENV['MAILER_EMAIL'] %>
+<% end %>
+<% if ENV['MAILER_NAME'] %>
+    MAILER_NAME: <%= ENV['MAILER_NAME'] %>
+<% end %>
   secret:
     - SECRET_KEY_BASE
     - TOTP_VAULT_KEY
     - DATABASE_URL
-    # Uncomment for SMTP auth:
-    # - SMTP_USER_NAME
-    # - SMTP_USER_PWD
-    # Uncomment for Google Search Console integration:
-    # - GOOGLE_CLIENT_ID
-    # - GOOGLE_CLIENT_SECRET
-    # Uncomment for MaxMind GeoIP:
-    # - MAXMIND_LICENSE_KEY
+<% if ENV['SMTP_USER_NAME'] %>
+    - SMTP_USER_NAME
+    - SMTP_USER_PWD
+<% end %>
+<% if ENV['GOOGLE_CLIENT_ID'] %>
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+<% end %>
+<% if ENV['MAXMIND_LICENSE_KEY'] %>
+    - MAXMIND_LICENSE_KEY
+<% end %>
 
 volumes:
   - "plausible-data:/var/lib/plausible"
@@ -74,10 +74,9 @@ retain_containers: 3
 
 accessories:
   db:
-    # Postgres 16 is what Plausible officially tests against (pinned in their docker-compose).
-    # Postgres 17 would likely work but isn't validated by the Plausible team yet.
+    # Postgres 16 is what Plausible officially tests against.
     image: postgres:16-alpine
-    host: YOUR_SERVER_IP
+    host: <%= ENV['SERVER_IP'] %>
     env:
       secret:
         - POSTGRES_PASSWORD
@@ -90,7 +89,7 @@ accessories:
 
   events-db:
     image: clickhouse/clickhouse-server:24.12-alpine
-    host: YOUR_SERVER_IP
+    host: <%= ENV['SERVER_IP'] %>
     env:
       clear:
         CLICKHOUSE_SKIP_USER_SETUP: "1"
