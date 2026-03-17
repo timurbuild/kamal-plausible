@@ -1,3 +1,6 @@
+set dotenv-load
+set dotenv-filename := ".kamal/secrets"
+
 # Initialize .kamal/secrets with auto-generated cryptographic values
 init:
     #!/usr/bin/env bash

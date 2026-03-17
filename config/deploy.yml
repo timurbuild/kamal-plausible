@@ -27,6 +27,9 @@ ssh:
   port: <%= ENV['SSH_PORT'] %>
 
 registry:
+<% if ENV['REGISTRY_SERVER'] %>
+  server: <%= ENV['REGISTRY_SERVER'] %>
+<% end %>
   username: <%= ENV['REGISTRY_USERNAME'] %>
   password:
     - KAMAL_REGISTRY_PASSWORD
@@ -86,7 +89,6 @@ accessories:
     directories:
       - plausible-db-data:/var/lib/postgresql/data
     options:
-      restart: always
       health-cmd: "pg_isready -U postgres"
       health-interval: 10s
 
@@ -105,7 +107,6 @@ accessories:
       - clickhouse/low-resources.xml:/etc/clickhouse-server/config.d/low-resources.xml
       - clickhouse/default-profile-low-resources-overrides.xml:/etc/clickhouse-server/users.d/default-profile-low-resources-overrides.xml
     options:
-      restart: always
       ulimit: "nofile=262144:262144"
       health-cmd: "wget --no-verbose --tries=1 -O - http://127.0.0.1:8123/ping || exit 1"
       health-interval: 10s
