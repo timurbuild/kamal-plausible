@@ -132,3 +132,7 @@ plausible (port 8000) --> plausible-db (PostgreSQL 16)
 ## Shared Server
 
 This setup coexists with other Kamal deployments on the same server. Each app gets routed by its `proxy.host` value. No additional configuration is needed -- just deploy your other apps to the same `SERVER_IP` with their own domain names.
+
+---
+
+Copyright [Timur - Product builder](https://timur.build)
