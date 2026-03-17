@@ -5,10 +5,9 @@ servers:
   web:
     hosts:
       - <%= ENV['SERVER_IP'] %>
+    cmd: sh -c "/entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
     options:
       ulimit: "nofile=65535:65535"
-
-cmd: sh -c "/entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
 
 proxy:
   host: <%= ENV['PLAUSIBLE_HOST'] %>
@@ -22,6 +21,10 @@ proxy:
   # sets X-Forwarded-For from the real client IP. Only set to true
   # if you have a trusted CDN/load balancer in front.
   # forward_headers: true
+
+ssh:
+  user: <%= ENV['SSH_USER'] %>
+  port: <%= ENV['SSH_PORT'] %>
 
 registry:
   username: <%= ENV['REGISTRY_USERNAME'] %>
