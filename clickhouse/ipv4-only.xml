@@ -1,0 +1,7 @@
+<!-- Binds ClickHouse to all IPv4 interfaces *inside the container*.
+     This is secure: no ports are published to the host (no port: mapping in deploy.yml),
+     so ClickHouse is only reachable by other containers on the internal kamal Docker network.
+     Without this, ClickHouse also tries IPv6 which fails in Docker and prevents startup. -->
+<clickhouse>
+  <listen_host>0.0.0.0</listen_host>
+</clickhouse>

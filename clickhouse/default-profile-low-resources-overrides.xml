@@ -1,0 +1,15 @@
+<!-- Constrains ClickHouse to single-threaded operation with small block sizes.
+     Prevents ClickHouse from consuming excessive CPU/memory on a shared server.
+     This is Plausible's official recommendation for small-to-medium deployments.
+     Remove this file if you have a dedicated server and want faster query performance. -->
+<clickhouse>
+  <profiles>
+    <default>
+      <max_threads>1</max_threads>
+      <max_block_size>8192</max_block_size>
+      <max_download_threads>1</max_download_threads>
+      <input_format_parallel_parsing>0</input_format_parallel_parsing>
+      <output_format_parallel_formatting>0</output_format_parallel_formatting>
+    </default>
+  </profiles>
+</clickhouse>
