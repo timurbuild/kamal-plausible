@@ -135,4 +135,4 @@ This setup coexists with other Kamal deployments on the same server. Each app ge
 
 ---
 
-Copyright [Timur - Product builder](https://timur.build)
+Copyright [Timur.Build](https://timur.build)
